@@ -67,6 +67,15 @@ public class EliminaEventoServlet extends HttpServlet {
         request.getSession().setAttribute("listaEventi", listaEventi);
         request.setAttribute("listaEventi", listaEventi);
 
+        // Mappa dei partecipanti per ogni evento
+        java.util.Map<Long, java.util.List<Utente>> mappaPartecipanti = new java.util.HashMap<>();
+        for (Evento ev : listaEventi) {
+            java.util.List<Utente> iscritti = iscrizioneDao.getPartecipantiEvento(ev.getId());
+            mappaPartecipanti.put(ev.getId(), iscritti);
+        }
+        request.getSession().setAttribute("mappaPartecipanti", mappaPartecipanti);
+        request.setAttribute("mappaPartecipanti", mappaPartecipanti);
+
         request.getRequestDispatcher("/WEB-INF/jsp/dashboardAdmin.jsp").forward(request, response);
     }
 }

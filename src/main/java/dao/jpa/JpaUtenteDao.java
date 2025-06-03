@@ -103,7 +103,6 @@ public class JpaUtenteDao implements UtenteDao {
         }
     }
 
-
     @Override
     public boolean delete(Long id) {
         EntityManager em = JpaDaoFactory.getManager();
@@ -112,12 +111,16 @@ public class JpaUtenteDao implements UtenteDao {
             tx.begin();
             Utente utente = em.find(Utente.class, id);
             if (utente != null) {
+                // Elimina tutte le iscrizioni legate all'utente
+                Query deleteIscrizioni = em.createQuery("DELETE FROM Iscrizione i WHERE i.utente.id = :utenteId");
+                deleteIscrizioni.setParameter("utenteId", id);
+                deleteIscrizioni.executeUpdate();
+
+                // Ora elimina l'utente
                 em.remove(utente);
-                tx.commit();
-                return true;
             }
-            tx.rollback();
-            return false;
+            tx.commit();
+            return true;
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             e.printStackTrace();

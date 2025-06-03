@@ -2,6 +2,9 @@ package servlet;
 
 import dao.DaoFactory;
 import dao.model.UtenteDao;
+import dao.model.EventoDao;
+import dao.model.IscrizioneDao;
+import model.Evento;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -11,6 +14,8 @@ import model.Utente;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @WebServlet("/eliminaUtente")
 public class EliminaUtenteServlet extends HttpServlet {
@@ -29,6 +34,31 @@ public class EliminaUtenteServlet extends HttpServlet {
         // Ricarica la lista aggiornata degli utenti
         List<Utente> listaUtenti = utenteDao.getAll();
         request.getSession().setAttribute("listaUtenti", listaUtenti);
+
+        EventoDao eventoDao = DaoFactory.getDaoFactory().getEventoDao();
+        IscrizioneDao iscrizioneDao = DaoFactory.getDaoFactory().getIscrizioneDao();
+        jakarta.servlet.http.HttpSession session = request.getSession(false);
+
+        if (session != null) {
+            Utente organizzatore = (Utente) session.getAttribute("user");
+            if (organizzatore != null) {
+                List<Evento> listaEventi = eventoDao.getEventiByOrganizzatore(organizzatore);
+                for (Evento ev : listaEventi) {
+                    List<Utente> partecipanti = iscrizioneDao.getPartecipantiEvento(ev.getId());
+                    ev.setPartecipanti(partecipanti);
+                }
+                session.setAttribute("listaEventi", listaEventi);
+                request.setAttribute("listaEventi", listaEventi);
+                // Add mappaPartecipanti
+                Map<Long, List<Utente>> mappaPartecipanti = new HashMap<>();
+                for (Evento ev : listaEventi) {
+                    List<Utente> iscritti = iscrizioneDao.getPartecipantiEvento(ev.getId());
+                    mappaPartecipanti.put(ev.getId(), iscritti);
+                }
+                session.setAttribute("mappaPartecipanti", mappaPartecipanti);
+                request.setAttribute("mappaPartecipanti", mappaPartecipanti);
+            }
+        }
 
         request.getRequestDispatcher("/WEB-INF/jsp/dashboardAdmin.jsp").forward(request, response);
     }
