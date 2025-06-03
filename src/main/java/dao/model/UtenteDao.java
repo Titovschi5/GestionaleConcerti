@@ -10,4 +10,6 @@ public interface UtenteDao {
     int countUtenti();
     List<Utente> getAll();
     Utente findById(Long id);
+    public boolean update(Utente utente);
+    public boolean delete(Long id);
 }

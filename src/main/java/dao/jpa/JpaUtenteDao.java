@@ -39,6 +39,24 @@ public class JpaUtenteDao implements UtenteDao {
     }
 
     @Override
+    public boolean update(Utente utente) {
+        EntityManager em = JpaDaoFactory.getManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            em.merge(utente);
+            tx.commit();
+            return true;
+        } catch (Exception e) {
+            if (tx.isActive()) tx.rollback();
+            e.printStackTrace();
+            return false;
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
     public Utente login(String email, String password) {
         EntityManager em = JpaDaoFactory.getManager();
         try {
@@ -80,6 +98,30 @@ public class JpaUtenteDao implements UtenteDao {
         EntityManager em = JpaDaoFactory.getManager();
         try {
             return em.find(Utente.class, id);
+        } finally {
+            em.close();
+        }
+    }
+
+
+    @Override
+    public boolean delete(Long id) {
+        EntityManager em = JpaDaoFactory.getManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+            Utente utente = em.find(Utente.class, id);
+            if (utente != null) {
+                em.remove(utente);
+                tx.commit();
+                return true;
+            }
+            tx.rollback();
+            return false;
+        } catch (Exception e) {
+            if (tx.isActive()) tx.rollback();
+            e.printStackTrace();
+            return false;
         } finally {
             em.close();
         }

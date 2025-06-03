@@ -43,9 +43,12 @@ public class LoginServlet extends HttpServlet {
                     mappaPartecipanti.put(evento.getId(), partecipanti);
                 }
 
+                List<Utente> listaUtenti = DaoFactory.getDaoFactory().getUtenteDao().getAll();
+
                 //HttpSession session1 = request.getSession();
                 session.setAttribute("user", utente);
                 session.setAttribute("listaEventi", listaEventi);
+                session.setAttribute("listaUtenti", listaUtenti);
                 session.setAttribute("mappaPartecipanti", mappaPartecipanti);
 
                 request.getRequestDispatcher("WEB-INF/jsp/dashboardAdmin.jsp").forward(request, response);

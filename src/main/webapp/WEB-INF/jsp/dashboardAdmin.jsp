@@ -337,7 +337,6 @@
   <h1>Benvenuto, ${user.username}!</h1>
   <nav>
     <ul>
-      <%-- <li><a href="${pageContext.request.contextPath}/dashboard">Dashboard</a></li> --%>
       <li><a href="${pageContext.request.contextPath}/logout">Logout</a></li>
     </ul>
   </nav>
@@ -439,6 +438,46 @@
         </table>
       </c:otherwise>
     </c:choose>
+  </section>
+
+  <section>
+    <h2>Gestione Utenti</h2>
+    <c:if test="${not empty listaUtenti}">
+      <table>
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Ruolo</th>
+          <th>Azioni</th>
+        </tr>
+        </thead>
+        <tbody>
+        <c:forEach var="utente" items="${listaUtenti}">
+          <tr>
+            <td>${utente.id}</td>
+            <td>${utente.username}</td>
+            <td>${utente.email}</td>
+            <td>${utente.ruolo}</td>
+            <td>
+              <form action="${pageContext.request.contextPath}/modificaUtente" method="get" style="margin: 0;">
+                <input type="hidden" name="id" value="${utente.id}" />
+                <button type="submit" class="btn-action">Modifica</button>
+              </form>
+              <form action="${pageContext.request.contextPath}/eliminaUtente" method="post" style="margin: 0; margin-top: 5px;" onsubmit="return confirm('Sei sicuro di voler eliminare questo utente?');">
+                <input type="hidden" name="id" value="${utente.id}" />
+                <button type="submit" class="btn-action" style="background-color: #dc3545;">Elimina</button>
+              </form>
+            </td>
+          </tr>
+        </c:forEach>
+        </tbody>
+      </table>
+    </c:if>
+    <c:if test="${empty listaUtenti}">
+      <p>Nessun utente trovato.</p>
+    </c:if>
   </section>
 
   <section class="crea-evento">
