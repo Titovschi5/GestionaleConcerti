@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Utente</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -170,12 +171,43 @@
             box-shadow: 0 2px 5px rgba(76, 175, 80, 0.2);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            width: 100%;
+            margin-bottom: 0.5rem;
         }
 
         .btn-iscrizione:hover {
             background-color: #388e3c;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-calendar {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 5px rgba(33, 150, 243, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: 100%;
+        }
+
+        .btn-calendar:hover:not(:disabled) {
+            background-color: #1976D2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+        }
+
+        .btn-calendar:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+            box-shadow: none;
         }
 
         footer {
@@ -337,6 +369,9 @@
                                 <input type="hidden" name="eventoId" value="${evento.id}">
                                 <button type="submit" class="btn-iscrizione">Cancella iscrizione</button>
                             </form>
+                            <button class="btn-calendar" data-evento-id="${evento.id}" data-is-registered="true">
+                                <i class="fas fa-calendar-plus"></i> Aggiungi a Google Calendar
+                            </button>
                         </div>
                     </c:forEach>
                 </div>
@@ -389,6 +424,9 @@
                                     <input type="hidden" name="eventoId" value="${evento.id}">
                                     <button type="submit" class="btn-iscrizione">Iscriviti</button>
                                 </form>
+                                <button class="btn-calendar" data-evento-id="${evento.id}" data-is-registered="false" disabled title="Devi prima iscriverti all'evento">
+                                    <i class="fas fa-calendar-plus"></i> Aggiungi a Google Calendar
+                                </button>
                             </div>
                         </c:if>
                     </c:forEach>
@@ -401,5 +439,55 @@
 <footer>
     <p>&copy; Tito Catalano, studente di Ingegneria Digitale</p>
 </footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarButtons = document.querySelectorAll('.btn-calendar');
+
+        calendarButtons.forEach(button => {
+            const isRegistered = button.getAttribute('data-is-registered') === 'true';
+
+            if (isRegistered) {
+                button.addEventListener('click', function() {
+                    const eventoId = this.getAttribute('data-evento-id');
+                    const originalContent = this.innerHTML;
+
+                    // Show loading indicator
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Aggiunta in corso...';
+
+                    // AJAX call
+                    fetch('addToGoogleCalendar?id=' + eventoId)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                // Mark as successful
+                                this.innerHTML = '<i class="fas fa-check"></i> Aggiunto';
+
+                                // Open the calendar link in a new tab
+                                window.open(data.calendarLink, '_blank');
+                            } else {
+                                // Show error message
+                                alert('Errore: ' + data.message);
+                                this.disabled = false;
+                                this.innerHTML = originalContent;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Errore:', error);
+                            alert('Si è verificato un errore durante l\'aggiunta al calendario.');
+                            this.disabled = false;
+                            this.innerHTML = originalContent;
+                        });
+                });
+            }
+        });
+    });
+</script>
 </body>
 </html>
