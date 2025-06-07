@@ -56,11 +56,37 @@ public class GoogleCalendarService {
                 .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
                 .setAccessType("offline")
                 .build();
-        LocalServerReceiver receiver = new LocalServerReceiver.Builder()
-                .setPort(8080)
-                .setCallbackPath("/oauth2callback")
-                .build();
-        return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+
+        // Try multiple ports to avoid "Address already in use" errors
+        IOException lastException = null;
+        int[] ports = {8080, 8090, 8100, 8110, 8120, 8130, 8140, 8150};
+
+        for (int port : ports) {
+            try {
+                LocalServerReceiver receiver = new LocalServerReceiver.Builder()
+                        .setPort(port)
+                        .setCallbackPath("/oauth2callback")
+                        .build();
+                System.out.println("Attempting to use port: " + port);
+                return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+            } catch (IOException e) {
+                if (e.getMessage() != null && e.getMessage().contains("Address already in use") ||
+                        (e.getCause() != null && e.getCause().getMessage() != null &&
+                                e.getCause().getMessage().contains("Address already in use"))) {
+                    lastException = e;
+                    System.out.println("Port " + port + " is already in use, trying next port...");
+                    continue;
+                }
+                throw e;  // Re-throw if it's not a port binding issue
+            }
+        }
+
+        // If we've tried all ports and none worked
+        if (lastException != null) {
+            throw new IOException("All ports are in use. Please wait a few minutes and try again.", lastException);
+        }
+
+        throw new IOException("Failed to get credentials for unknown reasons");
     }
 
     public static String addEventToGoogleCalendar(Evento evento) throws IOException, GeneralSecurityException {
