@@ -1,10 +1,7 @@
 package model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "utente")
@@ -15,13 +12,19 @@ public class Utente {
     private Long id;
 
     private String username;
-
     private String email;
-
     private String password;
-
     private String ruolo;
 
+    private boolean attivato = false;
+
+    @Column(name = "token_conferma")
+    private String tokenConferma;
+
+    @Column(name = "data_creazione_token")
+    private LocalDateTime dataCreazioneToken;
+
+    // Costruttori esistenti
     public Utente() {
     }
 
@@ -33,6 +36,32 @@ public class Utente {
         this.ruolo = ruolo;
     }
 
+    // Aggiungi getter e setter per i nuovi campi
+    public boolean isAttivato() {
+        return attivato;
+    }
+
+    public void setAttivato(boolean attivato) {
+        this.attivato = attivato;
+    }
+
+    public String getTokenConferma() {
+        return tokenConferma;
+    }
+
+    public void setTokenConferma(String tokenConferma) {
+        this.tokenConferma = tokenConferma;
+    }
+
+    public LocalDateTime getDataCreazioneToken() {
+        return dataCreazioneToken;
+    }
+
+    public void setDataCreazioneToken(LocalDateTime dataCreazioneToken) {
+        this.dataCreazioneToken = dataCreazioneToken;
+    }
+
+    // Getter e setter esistenti
     public Long getId() {
         return id;
     }
@@ -72,6 +101,4 @@ public class Utente {
     public void setRuolo(String ruolo) {
         this.ruolo = ruolo;
     }
-
-
 }

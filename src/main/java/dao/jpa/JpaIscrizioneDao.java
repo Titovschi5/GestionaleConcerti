@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class JpaIscrizioneDao implements IscrizioneDao {
-    // Singleton pattern implementation
+
     private static final JpaIscrizioneDao instance = new JpaIscrizioneDao();
 
     private JpaIscrizioneDao() {
-        // Private constructor to prevent instantiation
+
     }
 
     public static JpaIscrizioneDao getInstance() {

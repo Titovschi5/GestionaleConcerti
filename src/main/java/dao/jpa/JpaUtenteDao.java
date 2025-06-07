@@ -7,6 +7,7 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import model.Utente;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class JpaUtenteDao implements UtenteDao {
@@ -129,4 +130,77 @@ public class JpaUtenteDao implements UtenteDao {
             em.close();
         }
     }
+    @Override
+    public boolean attivaUtente(String token) {
+        EntityManager em = JpaDaoFactory.getManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+
+            Utente utente = findByToken(token);
+            if (utente == null) {
+                return false;
+            }
+
+            // Controlla se il token è scaduto (24 ore)
+            if (utente.getDataCreazioneToken().plusHours(24).isBefore(LocalDateTime.now())) {
+                return false;
+            }
+
+            utente.setAttivato(true);
+            utente.setTokenConferma(null);
+            utente.setDataCreazioneToken(null);
+
+            em.merge(utente);
+            tx.commit();
+            return true;
+        } catch (Exception e) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public Utente findByToken(String token) {
+        EntityManager em = JpaDaoFactory.getManager();
+        try {
+            Query query = em.createQuery("SELECT u FROM Utente u WHERE u.tokenConferma = :token");
+            query.setParameter("token", token);
+            return (Utente) query.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        } finally {
+            em.close();
+        }
+    }
+
+    @Override
+    public boolean aggiornaToken(Utente utente, String token) {
+        EntityManager em = JpaDaoFactory.getManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+
+            utente.setTokenConferma(token);
+            utente.setDataCreazioneToken(LocalDateTime.now());
+
+            em.merge(utente);
+            tx.commit();
+            return true;
+        } catch (Exception e) {
+            if (tx.isActive()) {
+                tx.rollback();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            em.close();
+        }
+    }
+
 }

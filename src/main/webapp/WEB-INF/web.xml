@@ -39,11 +39,11 @@
         <servlet-name>registrazione</servlet-name>
         <servlet-class>servlet.RegistrazioneServlet</servlet-class>
     </servlet>
-
     <servlet-mapping>
         <servlet-name>registrazione</servlet-name>
         <url-pattern>/registrazione</url-pattern>
     </servlet-mapping>
+
     <servlet>
         <servlet-name>HomeUtenteServlet</servlet-name>
         <servlet-class>servlet.HomeUtenteServlet</servlet-class>

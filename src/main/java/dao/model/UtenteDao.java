@@ -12,4 +12,8 @@ public interface UtenteDao {
     Utente findById(Long id);
     public boolean update(Utente utente);
     public boolean delete(Long id);
+    boolean attivaUtente(String token);
+    Utente findByToken(String token);
+    boolean aggiornaToken(Utente utente, String token);
+
 }

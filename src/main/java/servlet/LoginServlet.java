@@ -30,6 +30,13 @@ public class LoginServlet extends HttpServlet {
         Utente utente = DaoFactory.getDaoFactory().getUtenteDao().login(email, password);
 
         if (utente != null) {
+            // Verifica se l'account è attivato
+            if (!utente.isAttivato()) {
+                request.setAttribute("msg", "Account non attivato. Controlla la tua email per il link di conferma.");
+                request.getRequestDispatcher("WEB-INF/jsp/login.jsp").forward(request, response);
+                return;
+            }
+
             HttpSession session = request.getSession();
             session.setAttribute("user", utente);
 
