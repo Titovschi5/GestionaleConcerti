@@ -55,7 +55,7 @@ public class EventoServlet extends HttpServlet {
             categoriaId = Long.parseLong(request.getParameter("categoria"));
             categoria = DaoFactory.getDaoFactory().getCategoriaDao().findById(categoriaId);
         } catch (NumberFormatException e) {
-            // handle parsing error if necessary
+
         }
 
         HttpSession session = request.getSession(false);

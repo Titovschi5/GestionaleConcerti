@@ -16,11 +16,11 @@ public class LogoutServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
 
         if (session != null) {
-            // Invalidate the session to remove all attributes
+
             session.invalidate();
         }
 
-        // Redirect to the index page with a logout success parameter
+
         response.sendRedirect(request.getContextPath() + "/?logout=success");
     }
 }

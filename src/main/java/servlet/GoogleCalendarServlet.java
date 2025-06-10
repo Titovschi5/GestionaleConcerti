@@ -42,33 +42,33 @@ public class GoogleCalendarServlet extends HttpServlet {
                 return;
             }
 
-            // First clear tokens if previous authentication failed
+
             if (request.getParameter("retry") != null) {
                 GoogleCalendarService.clearTokens();
             }
 
             String calendarLink = GoogleCalendarService.addEventToGoogleCalendar(evento);
 
-            // Escape quotes in JSON
+
             calendarLink = calendarLink.replace("\"", "\\\"");
 
-            // Return JSON response with success and calendar link
+
             out.write("{\"success\": true, \"calendarLink\": \"" + calendarLink + "\"}");
 
         } catch (NumberFormatException e) {
             out.write("{\"success\": false, \"message\": \"ID evento non valido\"}");
             e.printStackTrace();
         } catch (TokenResponseException e) {
-            // Handle token authorization errors specifically
+
             System.err.println("OAuth2 token error: " + e.getMessage());
 
-            // Clear tokens to force new authentication on next attempt
+
             GoogleCalendarService.clearTokens();
 
             out.write("{\"success\": false, \"message\": \"Errore di autenticazione con Google. Riprova.\", \"authError\": true}");
             e.printStackTrace();
         } catch (java.net.BindException | java.nio.channels.AlreadyBoundException e) {
-            // Handle "Address already in use" error
+
             System.err.println("Port binding error: " + e.getMessage());
             out.write("{\"success\": false, \"message\": \"Errore: porta in uso. Attendere qualche minuto e riprovare.\"}");
             e.printStackTrace();
@@ -77,11 +77,11 @@ public class GoogleCalendarServlet extends HttpServlet {
             if (errorMsg == null) {
                 errorMsg = e.getClass().getName();
             } else {
-                // Escape quotes for JSON
+
                 errorMsg = errorMsg.replace("\"", "\\\"");
             }
 
-            // Check if the exception contains "Address already in use"
+
             if (errorMsg.contains("Address already in use") ||
                     (e.getCause() != null && e.getCause().getMessage() != null &&
                             e.getCause().getMessage().contains("Address already in use"))) {

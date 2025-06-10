@@ -50,14 +50,14 @@ public class GoogleCalendarService {
         }
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 
-        // Build flow and trigger user authorization request
+
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, Collections.singletonList(CalendarScopes.CALENDAR))
                 .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
                 .setAccessType("offline")
                 .build();
 
-        // Try multiple ports to avoid "Address already in use" errors
+
         IOException lastException = null;
         int[] ports = {8080, 8090, 8100, 8110, 8120, 8130, 8140, 8150};
 
@@ -77,11 +77,11 @@ public class GoogleCalendarService {
                     System.out.println("Port " + port + " is already in use, trying next port...");
                     continue;
                 }
-                throw e;  // Re-throw if it's not a port binding issue
+                throw e;
             }
         }
 
-        // If we've tried all ports and none worked
+
         if (lastException != null) {
             throw new IOException("All ports are in use. Please wait a few minutes and try again.", lastException);
         }
@@ -92,19 +92,19 @@ public class GoogleCalendarService {
     public static String addEventToGoogleCalendar(Evento evento) throws IOException, GeneralSecurityException {
         GoogleCalendarService calendarService = new GoogleCalendarService();
 
-        // Create a Google Calendar Event
+
         Event calendarEvent = new Event()
                 .setSummary(evento.getNome())
                 .setDescription(evento.getDescrizione());
 
-        // Format date and time correctly
+
         LocalDate date = evento.getData();
         LocalTime time = evento.getOra();
 
-        // Format the time properly
+
         String formattedTime = time.format(TIME_FORMATTER);
 
-        // Create the full ISO datetime string
+
         String startDateTimeStr = date.toString() + "T" + formattedTime + "+02:00";
         DateTime startDateTime = new DateTime(startDateTimeStr);
 
@@ -113,7 +113,7 @@ public class GoogleCalendarService {
                 .setTimeZone("Europe/Rome");
         calendarEvent.setStart(start);
 
-        // End time (1 hour after start)
+
         LocalTime endTime = time.plusHours(1);
         String formattedEndTime = endTime.format(TIME_FORMATTER);
 
@@ -125,16 +125,16 @@ public class GoogleCalendarService {
                 .setTimeZone("Europe/Rome");
         calendarEvent.setEnd(end);
 
-        // Set location if available
+
         if (evento.getLuogo() != null && !evento.getLuogo().isEmpty()) {
             calendarEvent.setLocation(evento.getLuogo());
         }
 
-        // Add the event to the primary calendar
+
         String calendarId = "primary";
         Event createdEvent = calendarService.service.events().insert(calendarId, calendarEvent).execute();
 
-        // Return the Google Calendar event link
+
         return createdEvent.getHtmlLink();
     }
 
