@@ -16,5 +16,5 @@ L'applicazione permette agli utenti di acquistare e prenotare biglietti per conc
 4. Avviare il progetto tramite IntelliJ o Maven.
 
 ## Credenziali di test
-* **Utente:** admin@test.com
-* **Password:** admin123
+* **Utente:** tito@tito.com
+* **Password:** tito123
