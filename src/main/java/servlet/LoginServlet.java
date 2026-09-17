@@ -27,6 +27,7 @@ public class LoginServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
+
         Utente utente = DaoFactory.getDaoFactory().getUtenteDao().login(email, password);
 
         if (utente != null) {
